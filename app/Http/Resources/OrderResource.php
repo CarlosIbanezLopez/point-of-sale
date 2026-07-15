@@ -17,11 +17,15 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'customer_id' => $this->customer_id,
-            'customer' => new CustomerResource($this->whenLoaded('customer')),
+            'customer' => $this->relationLoaded('customer')
+                ? (new CustomerResource($this->customer))->resolve($request)
+                : null,
             'order_date' => $this->order_date?->toISOString(),
             'status' => $this->status->value,
             'total' => $this->total,
-            'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'items' => $this->relationLoaded('items')
+                ? OrderItemResource::collection($this->items)->resolve($request)
+                : [],
             'created_at' => $this->created_at?->toISOString(),
         ];
     }
